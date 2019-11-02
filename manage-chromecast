@@ -1,0 +1,10 @@
+#!/bin/bash
+if [[ "$1" == "update" ]]; then 
+   curl -X POST -H "Content-Type: application/json" -d '{"params":"ota foreground"}' http://$2:8008/setup/reboot -v
+elif [[ "$1" == "reboot" ]]; then
+   curl -X POST -H "Content-Type: application/json" -d '{"params":"now"}' http://$2:8008/setup/reboot -v
+elif [[ "$1" == "reboot" ]]; then
+   curl -X POST -H "Content-Type: application/json" -d '{"params":"now"}' http://$2:8008/setup/reboot -v
+else 
+   echo Usage: manage-chromecast [ACTION] [IP ADDRESS OF DEVICE]
+fi

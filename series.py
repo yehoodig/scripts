@@ -4,7 +4,7 @@ series_type=input()
 print(series_type)
 print("n= ")
 i=int(input())
-print("Iterations: ")
+print("Terms to Sum: ")
 last=int(input())
 
 p=1
@@ -18,6 +18,13 @@ x=math.pi/4
 #x=0.5
 def mac_sine(x, n):
 	value=((-1)**n)*((x**(2*n+1))/math.factorial(2*n+1))
+	return value
+
+#x=math.pi/2
+x=math.pi/4
+#x=0.5
+def mac_cosine(x, n):
+	value=((-1)**n)*((x**(2*n))/math.factorial(2*n))
 	return value
 	
 a=1
@@ -35,9 +42,15 @@ elif series_type=="geometric":
 	print("r-value: ")
 	r=eval(input())
 elif series_type=="sine":
+        n=0
 	print("x-value: ")
 	x=eval(input())
 	print(x)
+elif series_type=="cosine":
+        n=1
+        print("x-value: ")
+        x=eval(input())
+        print(x)
 
 
 def generator(n):
@@ -46,6 +59,8 @@ def generator(n):
 	if series_type=="geometric":
 		return geometric(a,r,n)
 	if series_type=="sine":
+		return mac_sine(x,n)
+	if series_type=="cosine":
 		return mac_sine(x,n)
 	if series_type=="custom":
 		return custom(n)
