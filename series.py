@@ -1,4 +1,5 @@
 import math
+from fractions import Fraction
 #Maclaurin expansion generators
 x=math.pi/4
 def mac_sine(n, x):
@@ -17,6 +18,11 @@ def p_series(n, p):
 def geometric(n, a, r):
         value=a*(r**(n-1))
         return value
+
+def alternating(n):
+        value=(-1)**(n-1)
+        return value
+
 generators={"geometric":geometric, "p-series":p_series, "sine":mac_sine, "cosine":mac_cosine}
 
 def sum_series(term_index, n, generator):
@@ -29,10 +35,10 @@ def sum_series(term_index, n, generator):
     except OverflowError:
         return sum
 
-def sequence(term_index, n, generator):
+def seq_partialSums(term_index, n, generator):
     start=term_index
     while(term_index<=n):
-        print(str(sum_series(start, term_index, generator))+", ", end='')
+        print(str(Fraction(sum_series(start, term_index, generator)).limit_denominator())+", ", end='')
         term_index=term_index+1
     print()
 
@@ -48,6 +54,7 @@ while(command!="exit"):
     r=0
     p=0
     gen=0
+    alt=False
     if(command=="help"):
         print("help: Prints this message")
         print("sum: Prints the sum of a series")
@@ -60,9 +67,13 @@ while(command!="exit"):
         continue
     if(command=="exit"):
         break
-    if(command=="sum" or command=="sequence"):
+    if(command=="sum" or command=="sequence" or command=="seq-partial-sums"):
         print("Series type: ", end='')
         stype = input()
+        if(stype.startswith("alt")):
+            alt=True
+            stype=stype[3:]
+            print(stype)
         print("n=:", end='')
         n=int(input())
         print("Iterations: ", end='')
@@ -73,18 +84,31 @@ while(command!="exit"):
            print("x-value: ", end='')
            x=eval(input())
            gen=lambda n: generators[f](n, x)
-        if(stype=="p_series"):
-           print("p-value: ", end='')
-           p=eval(input())
-           gen=lambda n: generators[stype](n, p)
+        if(stype=="p-series" or stype=="harmonic"):
+           if(stype=="harmonic"):
+               p=1
+               stype="p-series"
+           else:
+               print("p-value: ", end='')
+               p=eval(input())
+           if(alt==True):
+               gen=lambda n: alternating(n)*generators[stype](n, p)
+           else: gen=lambda n: generators[stype](n, p)
         if(stype=="geometric"):
            print("a-value: ", end='')
            a=eval(input())
            print("r-value: ", end='')
            r=eval(input())
-           gen=lambda n: generators[stype](n, a, r)
+           if(alt==True):
+               gen=lambda n: alternating(n)*generators[stype](n, a, r)
+           else: gen=lambda n: generators[stype](n, a, r)
 
         if(command=="sum"):
-           print(sum_series(n, i, gen))
+           print(str(Fraction(sum_series(n, i, gen)).limit_denominator()))
+        if(command=="seq-partial-sums"):
+           seq_partialSums(n, i, gen)
         if(command=="sequence"):
-           sequence(n, i, gen)
+           while(n<=i):
+                print(str(Fraction(gen(n)).limit_denominator())+", ", end='')
+                n=n+1
+           print()
