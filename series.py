@@ -10,6 +10,16 @@ def mac_cosine(n, x):
         value=((-1)**n)*((x**(2*n))/math.factorial(2*n))
         return value
 
+def mac_tan(n, x):
+        sumsine=sum_series(0, n, lambda n: mac_sine(n, x))
+        sumcosine=sum_series(0, n, lambda n: mac_cosine(n, x))
+        if(sumsine < 0.0000000000000001):
+                return 0
+        if(sumcosine < 0.0000000000000001):
+                return "infinity"
+        return sumsine/sumcosine
+
+
 #series generators
 def p_series(n, p):
         value=1/(n**p)
@@ -23,7 +33,7 @@ def alternating(n):
         value=(-1)**(n-1)
         return value
 
-generators={"geometric":geometric, "p-series":p_series, "sine":mac_sine, "cosine":mac_cosine}
+generators={"geometric":geometric, "p-series":p_series, "sine":mac_sine, "cosine":mac_cosine, "tangent":mac_tan}
 
 def sum_series(term_index, n, generator):
     sum=0
