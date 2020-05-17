@@ -21,15 +21,22 @@
 gameindex=~/.launchrc
 
 ##Constants for DOS functions
+dos_system=dosbox
 defaultconf=~/DOS/conf/games.conf
 defaultbootconf=~/DOS/conf/boot_MSDOS622.conf
 configmodeconf=~/DOS/conf/boot_MSDOS622_config.conf
 mt32conf=~/DOS/conf/mt-32.conf
-confeditor=gedit
 
 ##Constants for WINE functions
 bottle=~/.wine
 
+## If running on windows Subsystem for Linux
+if grep -q Microsoft /proc/version; then
+   dos_system="/mnt/c/Program Files (x86)/DOSBox-0.74-3/DOSBox.exe"
+   confeditor=vim
+else
+   confeditor=gedit
+fi
 
 print_wine_help ()
 {
@@ -134,7 +141,7 @@ dos_function ()
    elif [ -z "$1" ]; then
       config=" -conf $defaultconf"
    elif [ "$1" == "--show" ]; then
-      echo Userconf: $(dosbox -printconf)
+      echo Userconf: $("$dos_system" -printconf)
       echo Default:  $defaultconf
       echo Boot:     $defaultbootconf
       echo MT-32:    $mt32conf
@@ -182,9 +189,9 @@ dos_function ()
 
    ##Launch Command
    if [ "$pass" ]; then
-      dosbox -userconf $config -c "$pass"
+      "$dos_system" -userconf $config -c "$pass"
    else
-      dosbox -userconf $config 
+      "$dos_system" -userconf $config 
    fi
 }
 
@@ -205,6 +212,7 @@ print_launchy_help ()
    echo "      --list         Prints a list of available commands (excluding system commands)."
    echo "  -h, --help         Print this message and exit."
 }
+
 launchy_function ()
 {
    ## Just a little script to make it easier to launch miscellaneous stuff.

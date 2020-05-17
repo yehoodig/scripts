@@ -13,10 +13,6 @@ def mac_cosine(n, x):
 def mac_tan(n, x):
         sumsine=sum_series(0, n, lambda n: mac_sine(n, x))
         sumcosine=sum_series(0, n, lambda n: mac_cosine(n, x))
-        if(sumsine < 0.0000000000000001):
-                return 0
-        if(sumcosine < 0.0000000000000001):
-                return "infinity"
         return sumsine/sumcosine
 
 
