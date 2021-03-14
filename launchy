@@ -14,7 +14,7 @@
 ##
 ## James McConnel May 19, 2016
 ##
-##TODO Add a method to create aliases and deemphasize .launchrc which maybe just duplicating that feature.
+##TODO Add a method to create aliases and deemphasize .launchrc which may be just duplicating that feature.
 
 
 ##Constants for launch function
@@ -121,7 +121,7 @@ print_dos_help ()
    echo "      --boot         Alternate DOSBox session using a full x86 emulation, in a Virtual HDD."
    echo "      --config-mode  Mounts the bootable image in the DOSBox shell."
    echo "  -p, --pass         Pass what follows to DOSBox without modification." 
-   echo "      --show         Print out defaults and exit."
+   echo "      --show         Print out current configuration and exit."
    echo "  -h, --help         Print this message and exit."
 	echo
    echo "NOTE 1: --boot, --config-mode and --pass are mutually exclusive."
@@ -130,7 +130,7 @@ print_dos_help ()
 
 dos_function ()
 {
-   #Builds a parameter list to send to DOSBox.  Effectively, just a wrapper so that I don't have to remember my local cofiguration.
+   #Builds a parameter list to send to DOSBox.  Effectively, just a wrapper so that I don't have to remember my local configuration.
    #Note to self: Avoid the temptation to remake the DOSBox command line.
    
    #Parses the options provided to generate a command which is then passed to DOSBox.
@@ -141,7 +141,12 @@ dos_function ()
    elif [ -z "$1" ]; then
       config=" -conf $defaultconf"
    elif [ "$1" == "--show" ]; then
-      echo Userconf: $("$dos_system" -printconf)
+      echo "DOS system: '$dos_system'"
+      if grep -q Microsoft /proc/version; then
+         echo Userconf: $("$dos_system" -printconf)
+      else
+         echo Userconf: $("dos_system" -printconf)
+      fi
       echo Default:  $defaultconf
       echo Boot:     $defaultbootconf
       echo MT-32:    $mt32conf
@@ -211,6 +216,41 @@ print_launchy_help ()
    echo "OPTIONS:"
    echo "      --list         Prints a list of available commands (excluding system commands)."
    echo "  -h, --help         Print this message and exit."
+   echo "      --HELP, --more-help   Displays more technical information."
+}
+
+print_launchy_help_technical () 
+{
+   print_launchy_help
+   echo
+   echo "To use the full range of capabilities available in this script,"
+   echo "you need to call it using a name related to the domain you want it to work in."
+   echo "In other words, make a symbolic link to it, and call the link."
+   echo
+   echo "For instance:"
+   echo "If you have a link named 'dos', you would call the script through the 'dos' link,"
+   echo "to run dos programs using DOSBox."
+   echo "Each domain has a help function that will display, to give more specific help."
+   echo 
+   echo "You can make a link using the following command:"
+   echo "   ln -s [SCRIPT TO RUN] [NEW NAME TO USE]"
+   echo
+   echo "This will make a new file at [NEW NAME TO USE] which points to [SCRIPT TO RUN]."
+   echo "When you run [NEW NAME TO USE] it will run this script, but with a name that tells the "
+   echo "script how you want to handle the call."
+   echo
+   echo "For the DOS domain, you can use the following link names:"
+   echo "   dos 386 486 pentium cga vga msdos"
+   echo
+   echo "For the windows emulation domain, you can use the following link names:"
+   echo "   win wino winey winer windoze win16 win32 win64"
+   echo
+   echo "For the system commands domain, you can use the following link names:"
+   echo "   launch launchy launcher run start play"
+   echo
+   echo "The final possible mode of operation, is as a bundle launcher."
+   echo "If you have a directory and inside of that directory is a file named '.launchy'"
+   echo "this script will run the script named by the 'main=' line in that file."
 }
 
 launchy_function ()
@@ -220,6 +260,9 @@ launchy_function ()
    ## 
    if [ -z "$1" -o "$1" == "--help" -o "$1" == "-h" ]; then
       print_launchy_help
+      exit
+   elif [ -z "$1" -o "$1" == "--HELP" -o "$1" == "--more-help" ]; then
+      print_launchy_help_technical
       exit
    elif [ "$1" == "--list" ]; then
       echo $(tput bold)$gameindex shortcuts:$(tput sgr0)
@@ -257,6 +300,7 @@ launchy_function ()
    fi
 }
 
+## Runs the script given by the 'main=' line in the .launchy file in the directory that was given as the parameter.
 bundle_function()
 {
    mainline="$(grep "main=" $1/.launchy)"
@@ -266,7 +310,7 @@ bundle_function()
 }
 
 
-##
+## Pick which function to use depending on the name this program was called by.
 case $(basename $0) in
    "dos" | "386" | "486" | "pentium" | "cga" | "vga" | "msdos")
       dos_function "$@"
@@ -278,7 +322,7 @@ case $(basename $0) in
             bundle_function "$@"
          else
             echo "\"$@\""
-            echo Error: parameter is directory
+            echo Error: parameter is not a launchy bundle
          fi
       else
          launchy_function "$@"

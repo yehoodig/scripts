@@ -1,0 +1,6 @@
+#/bin/bash
+main=print-some-stuff
+print_help ()
+{
+   echo "Successfully entered the main function!"
+}
