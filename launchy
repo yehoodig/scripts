@@ -215,6 +215,7 @@ print_launchy_help ()
    echo
    echo "OPTIONS:"
    echo "      --list         Prints a list of available commands (excluding system commands)."
+   echo "      --install      Appends the given [NAME] [COMMAND] pair to the .launchrc file"
    echo "  -h, --help         Print this message and exit."
    echo "      --HELP, --more-help   Displays more technical information."
 }
@@ -233,7 +234,7 @@ print_launchy_help_technical ()
    echo "Each domain has a help function that will display, to give more specific help."
    echo 
    echo "You can make a link using the following command:"
-   echo "   ln -s [SCRIPT TO RUN] [NEW NAME TO USE]"
+   echo "   ln -s [NEW NAME TO USE] [SCRIPT TO RUN]"
    echo
    echo "This will make a new file at [NEW NAME TO USE] which points to [SCRIPT TO RUN]."
    echo "When you run [NEW NAME TO USE] it will run this script, but with a name that tells the "
@@ -268,16 +269,33 @@ launchy_function ()
       echo $(tput bold)$gameindex shortcuts:$(tput sgr0)
       while read line; do
          if [[ "$line" == *"="* ]]; then
-            echo ${line%=*}
+            name=${line%=*}
+            if [[ "$name" != "#"* ]]; then echo $name; fi
          fi
       done <<< "$(cat $gameindex)"
       echo 
       echo $(tput bold)User scripts:$(tput sgr0)
-      ls --format=single-column ~/bin
+      if [ -e "$HOME/bin" ]; then
+         echo "~/bin"
+         ls --format=single-column ~/bin
+      fi
+      if [ -e "$HOME/.local/bin" ]; then
+         echo "~/.local/bin"
+         ls --format=single-column ~/.local/bin
+      fi
       exit
+   elif [ "$1" == "--install" ]; then
+       echo "attempting to install..."
+       echo "$2=$3" >> ~/.launchrc
+       exit
    else 
-      gameline="$(grep "$1=" $gameindex)"
-      command=${gameline#$1=} #This removes "$1=" from the front of the string.
+      while read line; do
+         if [[ "$line" == "$1="* ]]; then
+            command=${line/*=}
+            break
+         fi
+      done <<< "$(cat $gameindex)"
+      echo $command
    fi
 
    if [ -n "$command" -a "$command" != "$gameline" ]; then # If the key was given and is valid
