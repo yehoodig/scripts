@@ -279,6 +279,7 @@ launchy_function ()
          echo "~/bin"
          ls --format=single-column ~/bin
       fi
+      echo
       if [ -e "$HOME/.local/bin" ]; then
          echo "~/.local/bin"
          ls --format=single-column ~/.local/bin
@@ -292,19 +293,15 @@ launchy_function ()
       while read line; do
          if [[ "$line" == "$1="* ]]; then
             command=${line/*=}
+            echo Index entry: $line
+            echo Parsed Command: $command
             break
          fi
       done <<< "$(cat $gameindex)"
-      echo $command
    fi
 
-   if [ -n "$command" -a "$command" != "$gameline" ]; then # If the key was given and is valid
-      echo Index entry: $gameline
-      echo Parsed Command: $command
+   if [ -n "$command" ]; then # If the command was successfully parsed
       eval "$command"
-   elif [ "$(ls ~/bin | grep $1 2>/dev/null)" ]; then # If instead the key is the name of something in ~/bin
-      echo bin command: $1
-      ~/bin/$@
    elif [ -n "$1" ] && type $1 >/dev/null; then
       echo System command: \"$1\" found.  Shall I launch it? [y/n]
       read ans
